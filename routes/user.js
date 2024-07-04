@@ -70,4 +70,33 @@ router.get('/profile', authenticateToken, (req, res) => {
 
 module.exports = router;
 
+// đăng nhập 
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
 
+  const query = 'SELECT id, name, studentId, email, role, universityId, createdAt, password FROM users WHERE email = ?';
+  req.connection.query(query, [email], async (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = results[0];
+    
+
+    // Compare the password
+    if (await bcrypt.compare(password, user.password)) {
+      // Create a JWT token
+      const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+
+      res.json({
+        user: user,
+        token: token
+      });
+    } else {
+      res.status(401).json({ error: 'Invalid email or password' });
+    }
+  });
+});
