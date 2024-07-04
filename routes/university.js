@@ -68,5 +68,15 @@ router.post('/register', async (req, res) => {
     });
 });
 
+// lấy danh sách tất cả các universities trong bảng universities
+router.get('/getAll', (req, res) => {
+    const query = 'SELECT * FROM universities';
+    req.connection.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+});
 
 module.exports = router;
