@@ -42,44 +42,22 @@ router.post('/campaign', async (req, res) => {
 	});
 });
 
-// Lấy tất cả danh sách các chiến dịch
-router.get('/getAll', (req, res) => {
-	const query = 'SELECT * FROM campaigns';
-	req.connection.query(query, (err, results) => {
-	  if (err) {
-		return res.status(500).json({ error: err.message });
-	  }
-  
-	  if (results.length > 0) {
-		return res.status(200).json(results);
-	  } else {
-		return res.status(404).json({ error: 'Không tìm thấy chiến dịch nào.' });
-	  }
-	});
-  });
-
 // Lấy danh sách các chiến dịch dựa trên trường
-router.get('/campaign/byuserId/:userId', (req, res) => {
-    const userId = req.params.userId;
+router.get('/campaign/:universityId', (req, res) => {
+	const universityId = req.params.universityId;
 
-    const query = `SELECT *
-FROM 
-    campaigns c
-JOIN 
-    universities u ON c.universityId = u.id
-WHERE 
-    u.userId = ?;`;
-    req.connection.query(query, [userId], (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+	const query = 'SELECT * FROM campaigns WHERE universityId = ?';
+	req.connection.query(query, [universityId], (err, results) => {
+		if (err) {
+			return res.status(500).json({ error: err.message });
+		}
 
-        if (results.length > 0) {
-            return res.status(200).json(results);
-        } else {
-            return res.status(404).json({ error: 'Không tìm thấy chiến dịch nào với trạng thái này.' });
-        }
-    });
+		if (results.length > 0) {
+			return res.status(200).json(results);
+		} else {
+			return res.status(404).json({ error: 'Không tìm thấy chiến dịch nào với trạng thái này.' });
+		}
+	});
 });
 
 //Lấy danh sách các chiến dịch dựa theo trường đã duyệt (cho sv) (status = 0: chưa duyệt, status = 1: đã duyệt)
@@ -100,53 +78,22 @@ router.get('/campaign/accepted/:universityId', (req, res) => {
 	});
 });
 //Lấy thông tin một chiến dịch
-// router.get('/campaign/info/:id', (req, res) => {
-// 	const id = req.params.id;
-
-// 	const query = 'SELECT * FROM campaigns WHERE id = ?';
-// 	req.connection.query(query, [id], (err, results) => {
-// 		if (err) {
-// 			return res.status(500).json({ error: err.message });
-// 		}
-
-// 		if (results.length > 0) {
-// 			return res.status(200).json(results[0]);
-// 		} else {
-// 			return res.status(404).json({ error: 'Không tìm thấy chiến dịch nào.' });
-// 		}
-// 	});
-// });
-
 router.get('/campaign/info/:id', (req, res) => {
-    const id = req.params.id;
+	const id = req.params.id;
 
-    const query = `
-        SELECT 
-			joined.*,
-            campaigns.*
-        FROM joined 
-        LEFT JOIN campaigns ON joined.campaignId = campaigns.id 
-        WHERE campaigns.id = ?
-    `;
-    
-    req.connection.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('SQL Error:', err.message);
-            return res.status(500).json({ error: err.message });
-        }
+	const query = 'SELECT * FROM campaigns WHERE id = ?';
+	req.connection.query(query, [id], (err, results) => {
+		if (err) {
+			return res.status(500).json({ error: err.message });
+		}
 
-        console.log('SQL Results:', results);  // Debugging: Log SQL results
-
-        if (results.length > 0) {
-            const campaign = results[0];
-            return res.status(200).json(campaign);
-        } else {
-            return res.status(404).json({ error: 'Không tìm thấy chiến dịch nào với trạng thái này.' });
-        }
-    });
+		if (results.length > 0) {
+			return res.status(200).json(results[0]);
+		} else {
+			return res.status(404).json({ error: 'Không tìm thấy chiến dịch nào với trạng thái này.' });
+		}
+	});
 });
-
-
 //Xác nhận chiến dịch (trường) 
 router.put('/campaign/update-status/:id', (req, res) => {
 	const id = req.params.id;
