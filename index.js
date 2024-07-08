@@ -9,10 +9,19 @@ const studentRoutes = require('./routes/student');
 const userRoutes = require('./routes/user');
 const campaignRoutes = require('./routes/campaign');
 const universityRoutes = require('./routes/university');
+const cors= require('cors');
 
 const app = express();
 const port = 3700;
 
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+}
+
+app.use(cors(corsOptions));
 // Parse JSON bodies (as sent by API clients)
 app.use(bodyParser.json());
 

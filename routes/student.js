@@ -24,7 +24,7 @@ router.post('/join', (req, res) => {
         // Trả về bản ghi mới được thêm
         const fetchQuery = `
             SELECT id, campaignId, userId, info, joinedAt, status
-            FROM Joined
+            FROM joined
             WHERE id = ?
         `;
 
@@ -138,6 +138,75 @@ router.get('/unapprove-users/:campaignId', (req, res) => {
         }
 
         res.status(200).json(results);
+    });
+});
+
+router.get('/campaigns', (req, res) => {
+    const { userId } = req.query; 
+
+    if (!userId) {
+        return res.status(400).json({ error: 'userId parameter is required in the query' });
+    }
+
+    // Câu lệnh SQL để lấy danh sách các user đã được duyệt trong chiến dịch
+    const query = `
+       SELECT 
+    c.image, 
+    c.title, 
+    c.description, 
+    c.startAt, 
+    c.endAt, 
+    c.status,
+    u.id AS univerId,
+    c.id as campaignId,
+ 
+    CASE 
+        WHEN EXISTS (
+            SELECT 1 
+            FROM joined j 
+            WHERE j.campaignId = c.id AND j.userId = u2.id
+        ) THEN 1
+        ELSE 0
+    END AS status2
+FROM campaigns c
+INNER JOIN universities u ON c.universityId = u.id
+INNER JOIN users u2 ON u2.universityId = u.id
+WHERE u2.id = ?
+    `;
+
+    req.connection.query(query, [userId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.status(200).json(results);
+    });
+});
+
+router.delete('/delete/:userId/:campaignId', (req, res) => {
+    const { userId, campaignId } = req.params;
+
+    // Kiểm tra dữ liệu đầu vào
+    if (!userId || !campaignId) {
+        return res.status(400).json({ error: 'UserId và CampaignId là bắt buộc' });
+    }
+
+    // Câu lệnh SQL để xóa bản ghi trong bảng Joined
+    const query = `
+        DELETE FROM joined
+        WHERE userId = ? AND campaignId = ?
+    `;
+
+    req.connection.query(query, [userId, campaignId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy bản ghi phù hợp' });
+        }
+
+        res.status(204).end();
     });
 });
 
