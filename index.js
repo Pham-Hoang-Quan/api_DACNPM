@@ -10,6 +10,7 @@ const studentRoutes = require('./routes/student');
 const userRoutes = require('./routes/user');
 const campaignRoutes = require('./routes/campaign');
 const universityRoutes = require('./routes/university');
+const cors= require('cors');
 
 const app = express();
 const port = 3700;
