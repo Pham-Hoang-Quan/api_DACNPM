@@ -62,7 +62,7 @@ router.get('/getAll', (req, res) => {
 router.get('/campaign/byuserId/:userId', (req, res) => {
     const userId = req.params.userId;
 
-    const query = `SELECT *
+    const query = `SELECT  c.*
 FROM 
     campaigns c
 JOIN 
@@ -164,6 +164,7 @@ router.put('/campaign/update-status/:id', (req, res) => {
 		}
 	});
 });
+
 
 
 
